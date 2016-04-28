@@ -7,7 +7,7 @@
 
 # Site settings
 title: "Joe Meadway - technologist, etc."
-email: your-email@domain.com
+email: joemeadway@gmail.com
 description: > # this means to ignore newlines until "baseurl:"
   The collected notes, snippets and occasionally extended thoughts of Joe Meadway.
 baseurl: "" # the subpath of your site, e.g. /blog
