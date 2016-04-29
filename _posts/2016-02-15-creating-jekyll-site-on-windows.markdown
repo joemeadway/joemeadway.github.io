@@ -16,7 +16,7 @@ And a non-technical reason
 
 - Having the blog post commits highlighted in green on my github profile... More posts, more green - struck me as a good motivator, rather like Jerry Seinfeld's crossing-days-off-a-calendar technique for getting something done
 
-(though this does illustrate an inherent problem with the that display - there's a certain vanity and peacocking to having a nice green commit history, but quantity isn't quality)
+(though this does illustrate a problem inherent with that display - there's a definite vanity and peacocking to having a nice green commit history, but obviously quantity isn't quality)
 
 Seems easiest to start with Chocolatey...
 {% highlight shell %}
@@ -37,4 +37,4 @@ jekyll serve
 {% endhighlight %}
 starts running a localhost server on port 4000 by default. 
 
-A lot of older posts about setting up Jekyll suggest there will be problems with the encoding of the files - that Ruby or Jekyll will not use UTF-8 by default on Windows. On Jekyll version > 1.3 you can set the encoding as a parameter in the _config.yaml file... alternatively, setting the console encoding every time it runs... However, running Jekyll 3.1.1 on Ruby 2.2.3, I haven't found any problems with this as yet, so assume this is something that doesn't affect later versions of Ruby or Jekyll (whichever was causing the problem in the first place). Indeed, generated files appear to be UTF-8 encoded without BOM.
+A lot of older posts about setting up Jekyll suggest there will be problems with the encoding of the files - that Ruby or Jekyll will not use UTF-8 by default on Windows. Solutions given are: on Jekyll version > 1.3, to set the encoding as a parameter in the _config.yaml file; or alternatively, setting the console encoding every time it runs. However, running Jekyll 3.1.1 on Ruby 2.2.3, I haven't found any problems with the encoding as yet, so assume this is something that doesn't affect later versions of Ruby or Jekyll (whichever was causing the problem in the first place). Indeed, generated files appear to be UTF-8 encoded without BOM.
