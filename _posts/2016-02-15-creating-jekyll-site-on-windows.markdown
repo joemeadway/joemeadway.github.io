@@ -16,7 +16,7 @@ And a non-technical reason
 
 - Having the blog post commits highlighted in green on my github profile... More posts, more green - struck me as a good motivator, rather like Jerry Seinfeld's crossing-days-off-a-calendar technique for getting something done
 
-(though this does illustrate a problem inherent with that display - there's a definite vanity and peacocking to having a nice green commit history, but obviously quantity isn't quality)
+(though this does seem like a skewed incentive - there's a definite vanity and peacocking to having a nice green commit history, but obviously quantity isn't quality)
 
 Seems easiest to start with Chocolatey...
 {% highlight shell %}
