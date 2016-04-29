@@ -17,5 +17,5 @@ Install steps in the readme worked as described:
 
 to add the posh-git style annotations to the prompt. The only part I had to do in addition to this was to add the final `PROMPT_COMMAND` update into the `~/.bashrc` file too, that way the goodness is loaded every time a terminal window is opened.
  
-[posh-git-bash]: https://github.com/lyze/posh-gvit-sh/blob/master/README.md
+[posh-git-bash]: https://github.com/lyze/posh-git-sh
 [posh-git]: https://github.com/dahlbyk/posh-git
