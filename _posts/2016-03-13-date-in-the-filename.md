@@ -30,6 +30,7 @@ How so? In that default post, there's also a 'date' parameter in the Front Matte
 But the file name date doesn't quite do nothing. If you remove it, and just have 'welcome-to-jekyll.markdown', then Jekyll won't generate the post at all. And if you comment out the 'date' variable, then the file name date *does* define the post's date.
 
 A brief aside: the post date itself affects a few things. For example:
+
 - the `post.date` of the post, which Liquid can output
 - whether the post is ready to be generated - if post date > today, then it won't generate
 - the site structure
