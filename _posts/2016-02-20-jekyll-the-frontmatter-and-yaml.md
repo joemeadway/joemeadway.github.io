@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Jekyll - the Front Matter, and YAML"
-date:   2016-02-18 20:25:00 +0800
+date:   2016-02-20 20:25:00 +0800
 categories: jekyll yaml
 ---
 The front matter is a block of YAML code that indicates to Jekyll that the file is special in some way. As a simple example, in the example index.html:
