@@ -5,7 +5,7 @@ date:   2016-04-23 22:24:28 +0800
 categories: jekyll github-pages windows
 ---
 
-There was a similar error on Windows, where multiple ruby gems couldn't be built. The actual error message was 
+Trying to run the Github pages gem on Windows resulted in a similar error to that found on Ubuntu - multiple ruby gems couldn't be built. The actual error message was 
 {% highlight shell %}
 Gem::InstallError: The 'json' native gem requires installed build tools.
 {% endhighlight %}
