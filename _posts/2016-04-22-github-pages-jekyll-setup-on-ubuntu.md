@@ -13,7 +13,7 @@ All fairly straightforward until the `bundle install` step, at which point a cou
 
 [https://github.com/jekyll/jekyll/issues/3737](https://github.com/jekyll/jekyll/issues/3737)
 
-And the fix - to install the `ruby-devel` package - worked too.
+And the fix - to install the `ruby-dev` package - worked too.
 
 The second was a little more fiddly, but mostly because I misread the error message (or more accurately, skimmed it and latched onto what looked like the most pertinent information...)
 
