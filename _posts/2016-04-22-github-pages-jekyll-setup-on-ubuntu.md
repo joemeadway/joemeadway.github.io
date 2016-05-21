@@ -33,7 +33,11 @@ which advised
 sudo apt-get install zlib1g-dev
 ```
 
-which allowed `bundle install` to run as advertised.
+which allowed `bundle install` to run as advertised. However, one could go the whole hog and set up a full ruby dev environment [according to this][ruby-setup] 
+
+```
+sudo apt-get install git-core curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev
+```
 
 Finally, the last command
 
@@ -51,4 +55,16 @@ No repo name found. Specify using PAGES_REPO_NWO environment variables, 'reposit
 
 To fix, needed to add the repository name to a 'repository' variable in `_config.yml` - I put the url of the github repository in here, but given this didn't exist yet it possibly doesn't matter what the value here is? Irregardless, the build succeeded, hurrah and hurray.
  
-(Although I should be honest and point out that immediately after upgrading my Ubuntu to 16.04, the bundle fails to run entirely - an environment error saying that the Ruby2.1 path can't be found. I've always been using Ruby2.3 on the Ubuntu VM I have running, so... well, I'm back to building on Windows for the time being.)
+**Updated** Running through setup a second time, this time on a fresh Ubuntu MATE 16.04 install, had a new error running `bundle exec jekyll serve`:
+
+```
+jekyll 3.0.4 | Error:  Could not find a JavaScript runtime. See https://github.com/rails/execjs for a list of available runtimes.
+```
+
+However, the `gem install execjs` listed on that github page didn't resolve this; instead, it needed 
+
+```
+apt install ruby-execjs 
+```
+
+[ruby-setup]: [https://gorails.com/setup/ubuntu/16.04]
