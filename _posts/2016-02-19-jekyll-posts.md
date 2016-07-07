@@ -25,6 +25,8 @@ categories: jekyll update
 {% endhighlight %}
 The above is from the default post.
 
+*As a quick aside, posts can be created in draft format, but putting them in a `_drafts` folder created at the ame level as _posts. These are not included in the site build by default, but can be output using the flag `-D` or `--drafts` on the `jekyll serve` command.* 
+
 When it comes to the nitty-gritty of actually writing the post, and the day-to-day of managing the blog, you rather inevitably start to have to learn specific syntaxes and rules for how to work. For example, Jekyll can automatically generate an excerpt for a post that you can output elsewhere on the site. By default, the excerpt picks up the first paragraph element, and you can drop that onto a page using
 {% highlight liquid %}{% raw %}
 {{ page.excerpt }}
