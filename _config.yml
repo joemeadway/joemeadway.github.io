@@ -17,5 +17,9 @@ github_username:  joemeadway
 
 repository: joemeadway/joemeadway.github.io
 
+#default YAML settings
+permalink: /:year/:month/:day/:title.html
+
+
 # Build settings
 markdown: kramdown
