@@ -53,3 +53,38 @@ block{
 }
 ```
 
+## Structuring Sass projects
+
+This is, I suspect, the part that will change most frequently. There is a useful write up of different approaches [here](https://www.sitepoint.com/look-different-sass-architectures/), and I think what I'm currently workign with falls somewhere between [Style Prototypes](https://github.com/north/generator-style-prototype) by Sam Richard, and [The Sass Way](http://thesassway.com/beginner/how-to-structure-a-sass-project) by John W. Long.
+
+Attempt is made to build in the Atomic structure, styling elements at the most base level - so atoms are styled, then more complex element styling will *mostly* become about integrating different atoms. It isn't necessary to split every styling into the separate variables/mixins/extends files, but if it helps comprehension, then do so... **Utilities** would be a useful place to put single use styling classes, if you really do want to reduce the repetition per Atomic CSS. 
+
+```
+scss/
+|– style.scss			# pulling everything together			
+|– global/
+|  |– utilities/		# for global utility methods and styles - a reset sheet, base styling, particular useful mixins etc.
+|  |– settings/     # for global settings - fonts, colours, etc.
+|– partials/
+|  |– templates/		# for page-specific styling
+|  |  |– _home.scss		
+|  |  |– home
+|  |  |  |– _variables.scss  
+|  |  |  |– _extends.scss 
+|  |  |  |– _mixins.scss 
+|  |– organisms/		# for styling the integration of different molecules
+|  |  |– _header-banner.scss
+|  |  |– header-banner
+|  |  |  |– _variables.scss
+|  |  |  |– _extends.scss
+|  |  |  |– _mixins.scss
+|  |– molecules/ 		# for styling the integration of atoms
+|  |  |– _search-box.scss
+|  |  |– search-box
+|  |  |  |– _variables.scss
+|  |  |  |– _extends.scss
+|  |  |  |– _mixins.scss
+|  |– atoms/			# for individual elements on a page
+|  |  |– _search-field.scss
+|  |  |– _search-button.scss
+```
