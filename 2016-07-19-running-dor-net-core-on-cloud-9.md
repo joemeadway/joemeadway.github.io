@@ -53,4 +53,14 @@ dotnet restore
 dotnet run
 ```
 
+6) And just because you can, play with F# too...
+
+```
+mkdir fsharp-consoleapp
+cd fsharp-consoleapp
+dotnet new -l F#
+dotnet restore
+dotnet run
+```
+
 6) Ta-daa!
