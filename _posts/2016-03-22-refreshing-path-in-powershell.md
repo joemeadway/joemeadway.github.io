@@ -24,6 +24,35 @@ $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";"
 
 <http://stackoverflow.com/questions/17794507/reload-the-path-in-powershell>
 
-This works, but it's more than a little awkward to type or copy-paste this every time. It seems like this would be ideal to wrap up into a command that could be called as and when needed - either creating a Powershell function, or perhaps a batch file that does the same thing. 
+*Updated 22/7/2016 - creating the function*
 
-Along these lines, <http://stackoverflow.com/questions/9362692/how-to-create-ls-in-windows-command-prompt> shows quite a neat way of replicating the `ls` function in Windows, which creates a batch file with the relevant commands to list the contents of a folder. It suggests the same approach would work to create a 'refresh-path' command, but it could get complicated to figure out depending on how to do the equivalent of the Powershell command above in a batch file. 
+This works, but it's more than a little awkward to type or copy-paste this every time. So, we can wrap this up into a Powershell function:
+
+```
+function RefreshPath
+{
+	$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+}
+```
+
+Entering this into Powershell will create a function `RefreshPath`, which when called will do just that. But this will be discarded when the console window closes. To preserve it across all instances, we can update the Powershell profile, adding the function there.
+
+To check whether you have a profile already, run 
+
+```
+Test-path $profile
+``` 
+
+true means you do, false means you don't. If you don't, 
+
+```
+New-item –type file $profile
+``` 
+
+will create one. Then 
+
+```
+Notepad $profile
+``` 
+
+(or the name of your favourite text editor), and paste the RefreshPath function into the profile. Save and exit, and each Powershell console you open from now on will have the RefreshPath method available.
