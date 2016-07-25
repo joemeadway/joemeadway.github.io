@@ -17,7 +17,7 @@ while the majority (and the [documentation](https://learn.jquery.com/plugins/)) 
 $.fn.pluginName = function( options ) { etc. }
 ```
 
-So what's the difference? Best explanation I've found is here: <http://stackoverflow.com/a/2845989>. In short, `$.fn.pluginName` extends the **prototype** of jQuery, while `$.pluginName` extends the jQuery object itself. Each will be called slightly differently:
+So what's the difference? Best explanation I've found is here: <http://stackoverflow.com/a/2845989>. In short, `$.fn.pluginName` extends the *prototype* of jQuery, while `$.pluginName` extends the jQuery *object itself*. Each will be called slightly differently:
 
 ```
 $.pluginName($('#selection'), {} );
