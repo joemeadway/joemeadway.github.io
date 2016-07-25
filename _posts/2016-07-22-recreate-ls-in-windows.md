@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Recreating the 'ls' command in Windows (and presumably any other command you fancy too)"
-date:   2016-07-22 24:10:00 +0800
+date:   2016-07-22 14:10:00 +0800
 categories: powershell windows
 ---
 
