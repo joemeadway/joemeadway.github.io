@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "jQuery plugins: using $.fn.pluginName vs. $.pluginName"
-date:   2016-07-25 16:10:00 +0800
+date:   2016-07-25 16:10:00+0800
 categories: javascript jquery
 ---
 
