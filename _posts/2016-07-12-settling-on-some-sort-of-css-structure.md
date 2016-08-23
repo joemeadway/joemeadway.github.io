@@ -55,7 +55,7 @@ block{
 
 ## Structuring Sass projects
 
-This is, I suspect, the part that will change most frequently. There is a useful write up of different approaches [here](https://www.sitepoint.com/look-different-sass-architectures/), and I think what I'm currently workign with falls somewhere between [Style Prototypes](https://github.com/north/generator-style-prototype) by Sam Richard, and [The Sass Way](http://thesassway.com/beginner/how-to-structure-a-sass-project) by John W. Long.
+This is, I suspect, the part that will change most frequently. There is a useful write up of different approaches [here](https://www.sitepoint.com/look-different-sass-architectures/), and I think what I'm currently working with falls somewhere between [Style Prototypes](https://github.com/north/generator-style-prototype) by Sam Richard, and [The Sass Way](http://thesassway.com/beginner/how-to-structure-a-sass-project) by John W. Long.
 
 Attempt is made to build in the Atomic structure, styling elements at the most base level - so atoms are styled, then more complex element styling will *mostly* become about integrating different atoms. It isn't necessary to split every styling into the separate variables/mixins/extends files, but if it helps comprehension, then do so... **Utilities** would be a useful place to put single use styling classes, if you really do want to reduce the repetition per Atomic CSS. 
 
