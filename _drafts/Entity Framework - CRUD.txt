@@ -1,0 +1,46 @@
+Create, Read, Update, Delete
+https://docs.asp.net/en/latest/data/ef-mvc/crud.html
+
+Note - use repository pattern to separate out data access logic from code - tutorials do not do this
+
+Customize the Details Page
+
+Scaffolded view code leaves out collection properties
+	- need to add code to pull this in
+	
+	- Use methods 
+		- .Include() and .ThenInclude()
+			- these will pull in navigation property details (see Reading Related Data)
+		- .AsNoTracking()
+			- improves performace where entities returned will not be updated in current context lifetime
+			
+	- and can then update the View to pull the properties out of the model		
+			
+Update the Create Page
+
+Can use standard MVC model binder to get data from front end to back
+
+Remove ID from the Bind attribute, since this will not be updated manually
+
+See also ValidateAntiForgeryToken
+	- this attribute helps prevent cross-site request forgery attacks
+	- a token automatically injected into the view by FromTagHelper, and included when form submitted by user
+		- this is then validated by th Validate... attribute
+		
+Best practice is to whitelist properties that should be set through POST
+	- use Include parameter in the Bind attribute
+	- alternatively, Exclude parameter
+	
+	- When updating, could also TryUpdate, and pass a list of allowed properites
+	
+Or alternatively, use a view model, rather than an entirty class to bind the view to
+	- and in this, you only include the properties wanted to update in the model
+	- the view model properties then get copied into the entity instance
+		- could possibly use AutoMapper
+	- see _contect.Entry on entity instance 
+		 - set the state to Unchanged, 
+		 - and the Property("PropertyName").IsModified to true on each property included in view model
+
+Modify the Create View
+	- add in validation flags
+		- see asp-validation-for etc.
