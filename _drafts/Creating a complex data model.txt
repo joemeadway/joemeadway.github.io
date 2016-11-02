@@ -1,0 +1,33 @@
+Creating a Complex Data Model
+https://docs.asp.net/en/latest/data/ef-mvc/complex-data-model.html
+
+
+Customise the Data Model with Attributes
+
+Attributes to specify
+	- Formatting
+	- Validation
+	- Database Mapping Rules
+	
+The DataType attribute
+
+Can use to make changes such as only showing Date from a DateTime
+	- [DataType(DataType.Date)]
+	- has many enumerations, Date, Time, PhoneNumber, Currency, EmailAddress, etc.
+		- Application can provide many type-specific fewatures
+			- e.g. including 'mailto' on email address rendering
+	- do not provide validation
+		- emits a data- attribute for HTML5
+	
+Or formatting
+	- [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+	
+The StringLength attribute
+	- will enforce a column width on DB
+	
+ColumnName
+	- allows property mapping to a column that doesn't match name
+	
+Display(Name = "Some Display Name")
+	- allows definition of default rendering
+	

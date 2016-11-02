@@ -1,0 +1,52 @@
+Migrations
+https://docs.asp.net/en/latest/data/ef-mvc/migrations.html
+
+How a data model changes, what happens when it does, and how to deal with it
+
+Introduction to Migrations
+
+Every time you change a data mdoel, or the DbContext class
+	- in development, can simply delete and start again
+	- but can't do this in production
+	
+EF Core Migrations feature
+	- this tool generates scripts to update DB schema, rather than dropping and recreating
+	
+
+Change the connection string
+
+Conenction strings set in appsettings.json
+	- a new string sets up the migration to create a new database
+		- not required to get started, but good idea as will enable a test of the migration scripts
+
+	Alternatively, can DROP the database
+		- dotnet ef database drop -c <ContextClassName>
+	
+Save changes & build, navigate to project folder
+	- in cmd
+	
+	dotnet ef migrations add InitialCreate -c <ContextClassName>
+	
+Examine the Up and Down methods
+
+'migrations add' - EF generates the initial create script from scratch
+	- put in the Migrations folder
+		- named <timestamp>_InitialCreate.cs
+	- Up method of the class creates the database, Down method deletes them
+	
+'InitialCreate' parameter can be anything
+	- best to decribe what is happening in the process - e.g. AddTableX
+	
+Examing The Data Model Snapshot
+
+The snapshot reflects the database state after the latest migration
+	- remove with 'dotnet ef migrations remove' command
+		- rolls back, rather than straight delete
+		
+Apply the Migration to The Database
+
+'dotnet ef database update -c <ContextClassName>'
+
+__EFMigrationsHistory table in DB
+	- keeps track of which migrations have been applied to DB
+	

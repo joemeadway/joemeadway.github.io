@@ -1,0 +1,65 @@
+Sorting filtering, paging and grouping
+https://docs.asp.net/en/latest/data/ef-mvc/sort-filter-page.html
+
+Add Sorting Functionality to the Index method
+
+Add code to Index method
+	- default sorting
+		- ViewData["nameSortParam"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+			- ViewData valeus are used later by the view to set the appropriate hyperlink in column heading
+	- case statement on the sortOrder parameter value
+		- set Linq query value based on that value
+			- students = student.OrderByDescending(s => s.LastName);
+		- then executed as View is returned
+
+Add column heading to the View
+	- uses asp paramters in column heading elements, using ViewData values
+		- <a asp-action="Index" asp-route-sortOrder="@ViewBag.NameSortParm">
+		
+Add a Search Box to the Index Page
+	- Adding a new parameter to Idex method
+	- if parameter is not null or empty, adds into a where clause
+		- students = student.Where(s => s.LastName.Contains(searchString) 
+							|| s.FirstName.Contains(searchString));
+							
+	- then, the previosu sort order is applied
+		- in this way the query is built up piecemeal
+		
+	- also note filtering before sort...
+	
+	- N.B. 
+		- Where may give different results
+			- in-memory, the .Net implementation is case-sensitive - IEnumerable object
+			- query level, the SQL implementation may not be (determined by colaltion settings on DB) - IQueryable object
+		- so, operating on _context.Students (i.e. a repository rather than an EF DbSet) would use the .Net Where
+		- for case-sensitivity, can just call
+			- students = student.Where(s => s.LastName.ToUpper().Contains(searchString.ToUpper()) 
+							|| s.FirstName.ToUpper().Contains(searchString.ToUpper()));
+			-  but on the IQueryable object, this will have a performance hit on the query, as it adds code into the caluse in the SQL statement
+			
+Paging
+	- this involves creating a new PaginatedList.cs 
+		- uses Skip and Take methods to return 
+	- not strictly necessary right now, will return to...
+	
+Although - will need some ordering & paging for search results
+	- how do we prioritise, and order etc.?
+
+
+Grouping - Creating and About page that shows Student Stats
+
+Showing stats such as enrollment numbers
+	- needs grouping & simple calculations
+	
+Create a view model
+	- Model > SchoolViewModels folder
+		- EnrollmentDateGroup class
+			- EnrollmentDate
+			- StudentCount
+	- Extend Home controller
+		- add reference to ViewModel
+		- update About method
+		
+Note that in EF 1.0, grouping is done client-side
+	- so, who data set is returned to client, then it's grouped
+	- could have performance impact
