@@ -31,3 +31,40 @@ ColumnName
 Display(Name = "Some Display Name")
 	- allows definition of default rendering
 	
+Required
+	- makes a property required
+	- not necessary on non-nullable types
+	- alternatively, on string types could set 'StringLength(50, MinimumLength=1)'
+	
+Can create properites with only Get methods
+	- typically will not have a column created in the DB
+		- e.g. 
+		public string FullName
+        {
+            get
+            {
+                return LastName + ", " + FirstMidName;
+            }
+        }
+			- made up of two other columns
+			
+
+Navigation Properties
+	- mark as 'virtual' means that the data from that proeprty will be lazily loaded
+	- can also give more efficient change tracking
+	- collections mark out a 'many' relationship
+		- can specify as an ICollection, or List, or HashSet
+		- ICollection is implemented as HashSet by default
+		
+Create OfficeAssignment entity
+	- these are the mapping tables, many-to-many type relationships
+		- c.f. traveller-to-tour mapping
+	
+Key Attribute
+	- 'Key' marks out a property as a PrimaryKey
+		- in case the property doesn't match the pattern for naming
+		
+Not required to mark the Foreign Keys etc.
+	- EF will sutomatically generate them when there is a navigation property
+	- but can make the database model updating simpler and more efficient
+	
