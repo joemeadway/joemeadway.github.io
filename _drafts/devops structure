@@ -1,0 +1,19 @@
+Development Setup
+
+1) Develop basic SQL Server + ASP.NET Core app in VS.
+	- if at a later date we need to separate into smaller blocks, or back & front end, can do so
+
+2) Source Code in VSTS
+	- easiest integration with Azure
+
+3) Host in app in Azure, with SQL database
+	- deployment slots
+		- dev, staging, prod
+		
+	
+3) Set up Build Definition
+	- trigger on check in per branch
+	- can basically trigger the build, tests and publish
+	https://www.visualstudio.com/en-us/docs/build/apps/aspnet/aspnetcore-to-azure
+	https://www.visualstudio.com/en-us/docs/release/examples/azure/aspnet-core10-azure-web-apps
+	
