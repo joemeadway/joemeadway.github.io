@@ -1,0 +1,195 @@
+Controllers & Routing
+
+Core MVS uses routing middleware to match up requests and actions
+	- defined in startup ocde, or attributes
+	
+Setting up Routing Middleware
+
+In Configure.cs
+	- app.UseMVC(routes =>
+	{
+		routes.MapRoute("default", "{controller=Home}/{actiona=Index}/{Id?}");
+	});
+	
+	- this sets up the default route
+		- and would match up something like = Products/Details/5
+		- and direct to an action like
+		public class ProductsController : Controller
+		{
+		   public IActionResult Details(int id) { ... }
+		}
+		
+	- the "=" valeus indicate the default parameters
+	
+	- as the above route is so common, there is a method to wrap it
+	
+	app.UseMVCWithDefaultRoute()
+	
+	- option ID in the route means that actions can execute without an ID being provided
+		- will typically resolve to zero
+		- atrribute routing can be used to limit actions that can accept optional parameters
+		
+Multiple Routes
+	- more calls to MapRoute can create more routes, e.g.
+		app.UseMvc(routes =>
+		{
+		   routes.MapRoute("blog", "blog/{*article}",
+					defaults: new { controller = "Blog", action = "Article" });
+		   routes.MapRoute("default", "{controller=Home}/{action=Index}/{id?}");
+		}
+	
+	- the blog route here is a dedicates conventional route	
+		- it uses the conventional routing system, but is dedicated to a specific action
+		- since 'controller' and 'action' aren't specified in the template, they will always be set to "Blog" and "Article"
+		
+	- route names must be unique throughout the applciation
+	
+	- also be sure to check the ambiguous routing information
+	
+Attribute Routing
+
+Uses a set of attributes on the controller actions to map actions to route templates
+
+Add app.UseMvc() in the COnfigure.cs class, and don't pass a route in
+
+Then, each action in a controller uses attributes to defined the matching routes:
+
+public class HomeController : Controller
+{
+   [Route("")]
+   [Route("Home")]
+   [Route("Home/Index")]
+   public IActionResult Index()
+   {
+      return View();
+   }
+   [Route("Home/About")]
+   public IActionResult About()
+   {
+      return View();
+   }
+   [Route("Home/Contact")]
+   public IActionResult Contact()
+   {
+      return View();
+   }
+}
+
+Alternatively, and more likely for REST API design, use Http*Verb*Attributes:
+
+[HttpGet("/products")]
+public IActionResult ListProducts()
+{
+   // ...
+}
+
+[HttpPost("/products")]
+public IActionResult CreateProduct(...)
+{
+   // ...
+}
+
+or, with parameters
+
+public class ProductsApiController : Controller
+{
+   [HttpGet("/products/{id}", Name = "Products_List")]
+   public IActionResult GetProduct(int id) { ... }
+}
+
+The above defines a required parameter, and also a name for that route
+
+To make it less repetitive, you can add attributes on the controller, which will be inherited by all actions
+
+[Route("products")]
+public class ProductsApiController : Controller
+{
+   [HttpGet]
+   public IActionResult ListProducts() { ... }
+
+   [HttpGet("{id}")]
+   public ActionResult GetProduct(int id) { ... }
+}
+
+here, /products will match ListProducts, and /products/5 will match GetProducts
+
+and setting a route "/" will set a default empty template
+
+[Route("Home")]
+public class HomeController : Controller
+{
+    [Route("")]      // Combines to define the route template "Home"
+    [Route("Index")] // Combines to define the route template "Home/Index"
+    [Route("/")]     // Does not combine, defines the route template ""
+    public IActionResult Index()
+    {
+        ViewData["Message"] = "Home index";
+        var url = Url.Action("Index", "Home");
+        ViewData["Message"] = "Home index" + "var url = Url.Action; =  " + url;
+        return View();
+    }
+
+    [Route("About")] // Combines to define the route template "Home/About"
+    public IActionResult About()
+    {
+        return View();
+    }   
+}
+
+Can use attributes for inherited controllers, for example
+
+[Route("api/[controller]")]
+public abstract class MyBaseController : Controller { ... }
+
+public class ProductsController : MyBaseController
+{
+   [HttpGet] // Matches '/api/Products'
+   public IActionResult List() { ... }
+
+   [HttpPost("{id}")] // Matches '/api/Products/{id}'
+   public IActionResult Edit(int id) { ... }
+}
+
+Can use attributes to match multiple routes:
+	- but best avoided, as can get complicated
+
+[Route("Store")]
+[Route("[controller]")]
+public class ProductsController : Controller
+{
+   [HttpPost("Buy")]     // Matches 'Products/Buy' and 'Store/Buy'
+   [HttpPost("Checkout")] // Matches 'Products/Checkout' and 'Store/Checkout'
+   public IActionResult Buy()
+}
+
+
+URL Generation
+
+MVC applciation can use URL generation to create links to actions without hardcoding URLs
+
+Url.Action()
+
+or, in HTML
+	- Html.ActionLink
+	- Html.BeginForm
+	
+
+Areas
+
+Areas allow us to organise functionality into groups with a separate routing namespace and folder structure
+	- also allows multiple controllers to have the same name, as long as they're in a different area
+	- Effectively adds a new parameter to the URL
+
+e.g.
+
+app.UseMvc(routes =>
+{
+    routes.MapAreaRoute("blog_route", "Blog",
+        "Manage/{controller}/{action}/{id?}");
+    routes.MapRoute("default_route", "{controller}/{action}/{id?}");
+});
+
+Creates an area 
+
+Maybe more reading necessary on this
+
