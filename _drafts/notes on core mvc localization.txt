@@ -1,0 +1,226 @@
+Globalization and Localization
+
+Globalization
+	- creating apps thats upport different cultures
+		- supporting input, display and output of a defined set of language scripts fro different geographic areas
+
+Localization
+	- adapting a globalized app to a particular culture or locale
+
+Involves the following:
+	1) Make the app localizable
+	2) Provide localized resources for the languages and cultures to be supported
+	3) Implement a strategy to sleect the language/culture fro each request
+	
+Making an app's content Localizable
+
+IStringLocalizer, and IStringLocalizer<T>
+
+Introduced in .NET Core
+
+IStringLocalizer
+	- uses ResourceManager and ResourceReader to provide culture-specific resources at run time
+	- has an indexer and an IEnumerable for returning localised strings
+	- doesn't require storing default language strings in a resource file
+		- can develop the app targeted for localization, with no resource files to begin with
+	
+For example:
+
+using Microsoft.AspNet.Mvc;
+using Microsoft.Extensions.Localization;
+
+namespace Localization.StarterWeb.Controllers
+{
+    [Route("api/[controller]")]
+    public class AboutController : Controller
+    {
+        private readonly IStringLocalizer<AboutController> _localizer;
+
+        public AboutController(IStringLocalizer<AboutController> localizer)
+        {
+            _localizer = localizer;
+        }
+
+        [HttpGet]
+        public string Get()
+        {
+            return _localizer["About Title"];
+        }
+    }
+}
+
+IStringLocalizer<T> is coming from dependency injection
+
+If localised value "About Title" is not found, then the indexer key is returned - "About Title"
+	- therefore, can develop the app without having all the resources in place first
+	
+Use IHtmlLocalizer<T> for resources that contain HTML
+	- this HTML encodes arguments formatted in the resource string
+	
+
+	
+View Localization
+
+IViewLocalizer service provides Localization strings for views
+
+ViewLocalizer class implements the interface and finds resouce location from the view file path
+
+e.g.
+
+@using Microsoft.AspNet.Mvc.Localization
+
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["About"];
+}
+<h2>@ViewData["Title"].</h2>
+<h3>@ViewData["Message"]</h3>
+
+<p>@Localizer["Use this area to provide additional information."]</p>
+
+No option to use global shared resource file for view localization
+	- only through view's file name
+		- seems like the view is still a resource file, but one that matches the view file name
+		e.g.	Resources/ViewModels.HomeViewModel.fr.resx
+				Resources/ViewModels/HomeViewModel.fr.resx
+		
+DataAnnotations Localization
+
+Data Annotations are things like the validation messages for properties
+
+If you configure MVC Services to use AddDataAnnotationsLocalization(), then all annotations will check for localized version
+
+
+SupportedCultures and SupportedUICultures
+	- each has a CultureInfo object
+	- for SupportedCultures
+		- it determines the results of culture dependent function, such as date, time, number etc.
+	- for SupportedUICultures
+		- determines which translated strings are looked up by ResourceManager
+	- every thread has a CurrentCultrue and CurrentUICulture object
+		- and they are checked when rendering culture-dependent functions
+		
+Working with reosurce files
+
+Mechanism for separating localizable strings from code
+	- translated strings for non-default language are isolated in .resx files
+	- e.g. Welcome.es.resx
+	
+	- Key-value pairs
+		- key is default language
+		- value is translation
+
+
+Implement a strategy to select the language/culture for each request
+
+Configuring localization
+
+public void ConfigureServices(IServiceCollection services)
+{
+
+    services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+    services.AddMvc()
+      .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
+      .AddDataAnnotationsLocalization();
+
+
+AddLocalization
+	- adds localization services to the services container
+	- above code sets resources path to "Resources"
+
+AddViewLocalization
+	- add support for localized view files
+	- above code sets up to use the view file suffix - e.g. Index.fr.cshtml
+	
+AddDataAnnotationsLocalization
+	- adds support for localised data annotations
+	
+Localization Middleware
+
+The current culture on a request is set in the localization Middleware
+	- this is enabled in the Configure methos of Startup.cs
+	- must be configured before any middleware which might use it (like app.UseMvc())
+	e.g.
+	
+public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+{
+
+    var supportedCultures = new[]
+    {
+        new CultureInfo("en-US"),
+        new CultureInfo("en-AU"),
+        new CultureInfo("en-GB"),
+        new CultureInfo("en"),
+        new CultureInfo("es-ES"),
+        new CultureInfo("es-MX"),
+        new CultureInfo("es"),
+        new CultureInfo("fr-FR"),
+        new CultureInfo("fr"),
+    };
+
+    app.UseRequestLocalization(new RequestLocalizationOptions
+    {
+        DefaultRequestCulture = new RequestCulture("en-US"),
+        // Formatting numbers, dates, etc.
+        SupportedCultures = supportedCultures,
+        // UI strings that we have localized.
+        SupportedUICultures = supportedCultures
+    });
+
+    // Remaining code omitted for brevity.
+
+
+UseRequestLocalization
+	- initilises a RequestLocalizationOptions object
+	- on each request, the RequestCultureProvider list in the RequestLocalizationOptions object in enumerated
+		- the first provider that can successfully determine the request culture is used
+	- The default providers come from RequestLocalizationOptions class
+		- QueryStringRequestCultureProvider
+		- CookieRequestCultureProvider
+		- AcceptLanguageHeaderRequestCultureProvider
+	- If no provider can determine the culture requested, then DefaultRequestCulture is used
+	
+	
+QueryStringRequestCultureProvider
+	- looks for culture and culture-ui parameters in the query string
+		- e.g. http://localhost:5000/?culture=es-MX&ui-culture=es-MX
+	- if only one provided, will use values for both
+	
+CookieRequestCultureProvider
+	- mechanism to set culture with ASP.NET culture cookie
+	- created with MakeCookieValue method
+	- e.g.
+		c='en-UK'|uic='en-US'
+
+AcceptLanguageHeaderRequestCultureProvider
+	- looks at the browser's Accept-Language header 
+
+Or, can create a custom provider
+	- e.g. if wanting to store preferences in DB
+	
+
+Setting Culture Programmatically
+
+https://github.com/aspnet/Entropy/tree/dev/samples/Localization.StarterWeb
+
+Has sample of using a partial as a language selector
+	- added to footer section
+	- calls a SetLanguage method, which sets a culture cookie
+
+[HttpPost]
+public IActionResult SetLanguage(string culture, string returnUrl)
+{
+    Response.Cookies.Append(
+        CookieRequestCultureProvider.DefaultCookieName,
+        CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
+        new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1) }
+    );
+
+    return LocalRedirect(returnUrl);
+}
+
+Check how implemented in project for how to route the options to a razor partial
+
+	
