@@ -1,5 +1,9 @@
 ASP.NET Core Security
 
+AUTHORIZATION
+
+Determining who a person is
+
 Introduction to Identity
 
 Identity services are added through the ConfigureServices method in Startup.cs
@@ -212,4 +216,9 @@ public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = 
 
 
 
+AUTHORIZATION
+
+Process that determines what a user is able to do
+	- e.g. Admin can create, edit, delete; non-admin can only read
+	
 
