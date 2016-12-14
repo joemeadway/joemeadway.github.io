@@ -1,0 +1,215 @@
+ASP.NET Core Security
+
+Introduction to Identity
+
+Identity services are added through the ConfigureServices method in Startup.cs
+
+The services are then made available through the Configure method
+	- in the configure method, can set some configuration options
+		- password strength
+			options.Password.RequireDigit = true;
+			options.Password.RequiredLength = 8;
+			options.Password.RequireNonAlphanumeric = false;
+			options.Password.RequireUppercase = true;
+			options.Password.RequireLowercase = false;
+		- lockout settings
+			options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+			options.Lockout.MaxFailedAccessAttempts = 10;
+		- cookies
+			options.Cookies.ApplicationCookie.ExpireTimeSpan = TimeSpan.FromDays(150);
+			options.Cookies.ApplicationCookie.LoginPath = "/Account/LogIn";
+			options.Cookies.ApplicationCookie.LogoutPath = "/Account/LogOff";
+		- unique emails
+			options.User.RequireUniqueEmail = true;
+		    
+			
+When a User clicks Register, the UserManager and SignInManager are injected into the AccountController
+
+Register action then creates the usr by callng CreateAsync on UserManager
+Similarly Login calls the SignInAsync method, and stores a cookie with the user's claims
+And Logout clears the claims in that cookie
+
+You can access a user's identity details inside a controller action
+	- User.claims, for example
+	- or, to make authorization decidions
+	
+
+-- Check back for guide for OAuth and secret storage for facebook, instagram etc.
+	
+	
+	
+Account Confirmation
+
+Rquire SSL in the app settings in visual studio
+
+In Startup.cs, add SSL attribute
+
+	services.Configure<MvcOptions>(options =>
+	{
+		options.Filters.Add(new RequireHttpsAttribute ());
+	});
+
+Add attribute [RequireHttps] to each controller
+	- This will redirect any http GET requests to HTTPS, and reject HTTP post requests
+	
+Require Email confirmation
+
+Update ConfigureServices in Startup.cs to include the requirement:
+
+public void ConfigureServices(IServiceCollection services)
+{
+    // Add framework services.
+    services.AddApplicationInsightsTelemetry(Configuration);
+
+    services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+    services.AddIdentity<ApplicationUser, IdentityRole>(config =>
+        {
+            config.SignIn.RequireConfirmedEmail = true;
+        })
+        .AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddDefaultTokenProviders();
+
+    services.AddMvc();
+
+    // Add application services.
+    services.AddTransient<IEmailSender, AuthMessageSender>();
+    services.AddTransient<ISmsSender, AuthMessageSender>();
+    services.Configure<AuthMessageSenderOptions>(Configuration);
+
+    services.Configure<MvcOptions>(options =>
+    {
+        options.Filters.Add(new RequireHttpsAttribute());
+    });
+}
+
+Configure Email Provider
+
+Create class to fetch secure email key
+	AuthMessageSenderOptions.cs 
+		- contains SendGridUser, and SendGridKey
+
+	- these are set using the secret-manager tool, and set as application secrets in Azure
+		- these get stored in a json file locally (not encrypted)
+		
+Configure startup touse AuthMessageSenderOptions
+
+Configure the AuthMessageSender class
+ - import sendgrid package
+ - setup sendgrid account
+ - code similar to configure SendGrid
+ 
+     public class AuthMessageSender : IEmailSender, ISmsSender
+    {
+        public AuthMessageSender(IOptions<AuthMessageSenderOptions> optionsAccessor)
+        {
+            Options = optionsAccessor.Value;
+        }
+
+        public AuthMessageSenderOptions Options { get; } //set only via Secret Manager
+
+        public Task SendEmailAsync(string email, string subject, string message)
+        {
+            // Plug in your email service here to send an email.
+            var myMessage = new SendGrid.SendGridMessage();
+            myMessage.AddTo(email);
+            myMessage.From = new System.Net.Mail.MailAddress("Joe@contoso.com", "Joe Smith");
+            myMessage.Subject = subject;
+            myMessage.Text = message;
+            myMessage.Html = message;
+            var credentials = new System.Net.NetworkCredential(
+                Options.SendGridUser,
+                Options.SendGridKey);
+            // Create a Web transport for sending email.
+            var transportWeb = new SendGrid.Web(credentials);
+            return transportWeb.DeliverAsync(myMessage);
+        }
+
+        public Task SendSmsAsync(string number, string message)
+        {
+            // Plug in your SMS service here to send a text message.
+            return Task.FromResult(0);
+        }
+    }
+
+
+Account confirmation and recovery
+
+Template incldues this code by default - to enable it:
+
+- [HttpPost] Register method in AccountController.cs
+	
+- uncomment:
+	
+	await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
+							$"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
+	//await _signInManager.SignInAsync(user, isPersistent: false);
+	_logger.LogInformation(3, "User created a new account with password.");
+	return RedirectToLocal(returnUrl);
+	
+
+- and to enable password receovery, uncomment in ForgotPassword action
+	
+	var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+	var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+	await _emailSender.SendEmailAsync(model.Email, "Reset Password",
+							$"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
+	return View("ForgotPasswordConfirmation");
+
+- uncomment related code in the ForgotPassword.cshtml view file
+
+Require Email Confirmation Before LogIn
+
+Update HttpPost Login method in account controller
+
+
+//
+// POST: /Account/Login
+[HttpPost]
+[AllowAnonymous]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
+{
+    ViewData["ReturnUrl"] = returnUrl;
+    if (ModelState.IsValid)
+    {
+        // Require the user to have a confirmed email before they can log on.
+        var user = await _userManager.FindByNameAsync(model.Email);
+        if (user != null)
+        {
+            if (!await _userManager.IsEmailConfirmedAsync(user))
+            {
+                ModelState.AddModelError(string.Empty, "You must have a confirmed email to log in.");
+                return View(model);
+            }
+        }
+		// end of new bit
+		
+        // This doesn't count login failures towards account lockout
+        // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+        var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+        if (result.Succeeded)
+        {
+            _logger.LogInformation(1, "User logged in.");
+            return RedirectToLocal(returnUrl);
+        }
+        if (result.RequiresTwoFactor)
+        {
+            return RedirectToAction(nameof(SendCode), new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
+        }
+        if (result.IsLockedOut)
+        {
+            _logger.LogWarning(2, "User account locked out.");
+            return View("Lockout");
+        }
+        else
+        {
+            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+            return View(model);
+        }
+    }
+
+
+
+
