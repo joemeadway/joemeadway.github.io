@@ -1,0 +1,193 @@
+ASP.NET Core - Using Gulp, and Setting up Sass
+
+Using Gulp
+
+Gulp	
+	- Javascript based streaming build toolkit for client side code
+	- use to stream files through processes when triggered by event in build env.
+	- use to automate certain tasks
+		- bundle & minify JS, CSS
+		- compile Less and Sass
+		- compile Typescript
+	
+Tasks defined in a gulpfile.js
+	- for example, initial file, defining various paths that will be referenced in tasks:
+	
+/// <binding Clean='clean' />
+"use strict";
+
+var gulp = require("gulp"),
+  rimraf = require("rimraf"),
+  concat = require("gulp-concat"),
+  cssmin = require("gulp-cssmin"),
+  uglify = require("gulp-uglify");
+
+var paths = {
+  webroot: "./wwwroot/"
+};
+
+paths.js = paths.webroot + "js/**/*.js";
+paths.minJs = paths.webroot + "js/**/*.min.js";
+paths.css = paths.webroot + "css/**/*.css";
+paths.minCss = paths.webroot + "css/**/*.min.css";
+paths.concatJsDest = paths.webroot + "js/site.min.js";
+paths.concatCssDest = paths.webroot + "css/site.min.css";
+
+
+So, the above
+	- specifies which Node modules are required
+		- gulp - the build system
+		- rimraf - rm -rf command
+		- gulp-concat - module to concatenate files
+		- gulp-cssmin - to minify CSS files
+		- gulp-uglify - to minify .js files
+
+Next, define tasks:
+
+gulp.task("clean:js", function (cb) {
+  rimraf(paths.concatJsDest, cb);
+});
+
+gulp.task("clean:css", function (cb) {
+  rimraf(paths.concatCssDest, cb);
+});
+
+gulp.task("clean", ["clean:js", "clean:css"]);
+
+gulp.task("min:js", function () {
+  return gulp.src([paths.js, "!" + paths.minJs], { base: "." })
+    .pipe(concat(paths.concatJsDest))
+    .pipe(uglify())
+    .pipe(gulp.dest("."));
+});
+
+gulp.task("min:css", function () {
+  return gulp.src([paths.css, "!" + paths.minCss])
+    .pipe(concat(paths.concatCssDest))
+    .pipe(cssmin())
+    .pipe(gulp.dest("."));
+});
+
+gulp.task("min", ["min:js", "min:css"]);
+
+
+format
+	- gulp.task("task-name", functionToPerform(){...});
+	
+pipe
+	- to chain methods together
+	- typically
+		- source (use defined paths, and ! to exclude)
+		- operation(s)
+		- detination
+		
+In VS, can attach gulp tasks to certain events, such as 'Before Build'
+	- these triggers are stored in comments at top of gulpfile.js
+	- can also have the tasks kicked off by scripts section of project.json
+		- these are not triggered by default
+		- click Build -> Produce Outputs on Build
+			- this adds ProduceOutputsOnBuild in the .xproj file, which causes the trigger
+			
+Tasks can be set to run in series:
+
+gulp.task("series:first", function () {
+  console.log('first task! <-----');
+});
+
+gulp.task("series:second", ["series:first"], function () {
+  console.log('second task! <-----');
+});
+
+gulp.task("series", ["series:first", "series:second"], function () {});
+
+
+The dependencies are passed in square brackets
+
+gulp.watch(glob [, opts], tasks) { }
+	- this can be used to watch for changes on files	
+		- define which files in 'glob'
+
+
+Install Sass
+	- ruby, then 'gem install sass'
+	- or, in Visual Studio, add 
+		'gulp-sass' to devDependencies
+	in package.json
+	
+	- then in gulpfile.js
+		- add requirement
+			sass = require("gulp-sass");
+		- then, hook up source and output folders
+			gulp.task("sass", function () {
+			  return gulp.src('Styles/main2.scss')
+				.pipe(sass())
+				.pipe(gulp.dest(project.webroot + '/css'));
+			});
+			
+
+Font Awesome
+
+For icons
+	
+Add dependencies in bower.json
+
+{
+  "name": "ASP.NET",
+  "private": true,
+  "dependencies": {
+    "bootstrap": "3.0.0",
+    "jquery": "1.10.2",
+    "jquery-validation": "1.11.1",
+    "jquery-validation-unobtrusive": "3.2.2",
+    "hammer.js": "2.0.4",
+    "bootstrap-touch-carousel": "0.8.0",
+    "Font-Awesome": "4.3.0"
+  }
+}
+
+
+Then add the stylesheet via the gulpfile.js
+
+gulp.task("copy", ["clean"], function () {
+  var bower = {
+    "angular": "angular/angular*.{js,map}",
+    "bootstrap": "bootstrap/dist/**/*.{js,map,css,ttf,svg,woff,eot}",
+    "bootstrap-touch-carousel": "bootstrap-touch-carousel/dist/**/*.{js,css}",
+    "hammer.js": "hammer.js/hammer*.{js,map}",
+    "jquery": "jquery/jquery*.{js,map}",
+    "jquery-validation": "jquery-validation/jquery.validate.js",
+    "jquery-validation-unobtrusive": "jquery-validation-unobtrusive/jquery.validate.unobtrusive.js",
+    "font-awesome": "Font-Awesome/**/*.{css,otf,eot,svg,ttf,woff,wof2}"
+  };
+
+  for (var destinationDir in bower) {
+    gulp.src(paths.bower + bower[destinationDir])
+      .pipe(gulp.dest(paths.lib + destinationDir));
+  }
+});
+
+
+Controlling Budling & Minification for Specific Environments
+
+When gulp used to optimise files, they are saved to a local staging and production location
+
+_Layout.cshtml file uses environment tag to provide two different versions of CSS files
+	- one for development, one for staging and production
+	
+When Hosting:Environment is switched in Visual Studio, the relevant CSS paths are used
+
+<environment names="Development">
+  <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+  <link rel="stylesheet" href="~/css/site.css" />
+</environment>
+<environment names="Staging,Production">
+  <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.5/css/bootstrap.min.css"
+      asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+      asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+  <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
+</environment>
+
+
+
+
+
