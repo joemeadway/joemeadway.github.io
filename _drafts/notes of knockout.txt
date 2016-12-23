@@ -1,0 +1,218 @@
+ASP.NET 
+
+Adding Knockout to ASP.NET Core
+
+1) Add knockout dependency to bower
+	
+	{
+		"name": "KnockoutDemo",
+		"private": true,
+		"dependencies": {
+			"knockout" : "^3.3.0"
+		},
+		"exportsOverride": {
+		}
+	}
+
+2) Will restore into lib/knockout/knockout.js
+	- in production, best to go with CDN: http://ajax.aspnetcdn.com/ajax/knockout/knockout-3.3.0.js
+		- and have local fallback
+	
+3) Add script element
+
+
+USING IT
+
+Knockout moves from using jQuery to manipulate DOM directly
+	- instead, user actions interact with a ViewModel object, and Knockoout ensures the page elements are synchronised
+	
+For example:
+
+<html>
+  <head>
+    <script type="text/javascript" src="lib/knockout/knockout.js"></script>
+  </head>
+  <body>
+    <h1>Some Article</h1>
+    <p>
+      By <span data-bind="text: authorName"></span>
+    </p>
+    <script type="text/javascript">
+      var viewModel = {
+        authorName: 'Steve Smith'
+      };
+      ko.applyBindings(viewModel);
+    </script>
+  </body>
+</html>
+
+
+The span element here is bound to a viewModel object
+	- using the data-bind attribute 
+	- and the ko.applyBindings method
+	
+and to manipulate the viewModel from the HTML
+
+<p>
+  Author Name: <input type="text" data-bind="value: authorName" />
+</p>
+
+and updating the property in the viewModel to be an observable:
+
+var viewModel = {
+  authorName: ko.observable('Steve Smith')
+};
+ko.applyBindings(viewModel);
+
+
+Knockout supports different types of bindings
+	- funtions
+			
+		<h1>Some Article</h1>
+		<p>
+		  By <span data-bind="text: authorName"></span>
+		  (<a data-bind="attr: { href: twitterUrl}, text: twitterAlias" ></a>)
+		</p>
+		
+		here, the anchor tag is bound to the text property twitterAlias, and also the property twitterUrl
+		
+		and we can update the viewModel like
+		
+		function viewModel() {
+		  this.authorName = ko.observable('Steve Smith');
+		  this.twitterAlias = ko.observable('@ardalis');
+
+		  this.twitterUrl = ko.computed(function() {
+			return "https://twitter.com/" + this.twitterAlias().replace('@','');
+		  }, this)
+		};
+		ko.applyBindings(viewModel);
+
+	
+	- UI events
+	
+		<p>
+		  <button data-bind="click: capitalizeTwitterAlias">Capitalize</button>
+		</p>
+
+	here, the click event is bound to the method capitalizeTwitterAlias
+	
+	and in the view model:
+	
+		function viewModel() {
+		  this.authorName = ko.observable('Steve Smith');
+		  this.twitterAlias = ko.observable('@ardalis');
+
+		  this.twitterUrl = ko.computed(function() {
+			return "https://twitter.com/" + this.twitterAlias().replace('@','');
+		  }, this);
+
+		  this.capitalizeTwitterAlias = function() {
+			var currentValue = this.twitterAlias();
+			this.twitterAlias(currentValue.toUpperCase());
+		  }
+		};
+		ko.applyBindings(viewModel);
+
+	note use of brackets to get value of observable property
+	
+		
+Control Flow
+
+K gives bindings for conditional and looping operations
+
+Looping
+	- good for lists, meus, grids, tables
+	- iterates over an array
+	- when used with observable array, automatically adds and remves items from array, without needing to recreate every element
+	- 
+	e.g.
+	
+		<h1>Record</h1>
+		<table>
+		  <thead>
+			<tr>
+			  <th>Opponent</th>
+			  <th>Result</th>
+			</tr>
+		  </thead>
+		  <tbody data-bind="foreach: gameResults">
+			<tr>
+			  <td data-bind="text:opponent"></td>
+			  <td data-bind="text:result"></td>
+			</tr>
+		  </tbody>
+		</table>
+		<script type="text/javascript">
+		  function GameResult(opponent, result) {
+			var self = this;
+			self.opponent = opponent;
+			self.result = ko.observable(result);
+		  }
+
+		  function ViewModel() {
+			var self = this;
+
+			self.resultChoices = ["Win", "Loss", "Tie"];
+
+			self.gameResults = ko.observableArray([
+			  new GameResult("Brendan", self.resultChoices[0]),
+			  new GameResult("Brendan", self.resultChoices[0]),
+			  new GameResult("Michelle", self.resultChoices[1])
+			]);
+		  };
+		  ko.applyBindings(new ViewModel);
+		</script>
+
+	- Note use of 'new ViewModel' - capitalised, new instance of the object type
+	
+	- can then add to that gameResults array
+	
+		// add this to ViewModel()
+		self.addResult = function() {
+		  self.gameResults.push(new GameResult("", self.resultChoices[0]));
+		}
+
+	- can access the ViewModel object in the html using $root	
+
+		<tbody data-bind="foreach: gameResults">
+		  <tr>
+			<td><input data-bind="value:opponent" /></td>
+			<td><select data-bind="options: $root.resultChoices,
+			  value:result, optionsText: $data"></select></td>
+		  </tr>
+		</tbody>
+
+	- can use just about any legal js expression in a binding - e.g., show/hide an element
+		
+		<div data-bind="visible: customerValue > 100"></div>
+
+Templates
+
+Allow use to separate out front end elements into separate units
+	- for example, with the above win/loss table
+	
+	<tbody data-bind="template: { name: 'rowTemplate', foreach: gameResults }">
+	</tbody>
+	<script type="text/html" id="rowTemplate">
+	  <tr>
+		<td><input data-bind="value:opponent" /></td>
+		<td><select data-bind="options: $root.resultChoices,
+		  value:result, optionsText: $data"></select></td>
+	  </tr>
+	</script>
+
+The row becomes a template
+
+
+Components
+
+Allow organisation and reuse of UI code
+	
+To create, specifcy template and viewmodel, and name it
+	- ko.components.register()
+	- can also be loaded form external files using something like require.js
+	
+Communicating with APIs
+	- knockout can work with any JSON data
+		- typically use the jQuery $.getJSON(), or $.post() methods
