@@ -1,0 +1,232 @@
+ASP.NET Core
+
+Dependency Injection
+
+ASP.NET Core provides minimal DI framework
+	- won't whoelsale replace other frameworks
+	
+What id DI
+
+A technique for achieving loose copupling between objects and their dependencies
+	- rather than directly instantiating, the objects a class needs are provided in some way
+		- often, this is through the constructor
+			- Explicit Dependencies Principle
+			- "constructor injection"
+			
+When designed with DI, they are more loosely coupled
+	- Dependency Inversion Principle	
+		- "high level modules should not depend on low level modules; both should depend on abstractions"
+	- Instead of referencing specific implementation, classes request abstractions (typicall interfaces)
+		- these are provided as the class is constructed
+	- so, abstract class into interface, then provide an implementation as a parameter
+		- the Strategy design pattern
+		
+If whole system takes this approach, useful to have class dedicated to creating these classes & their dependencies
+	- these are called 'containers', or Inversion of Control (IoC) Containers, or DI Containers
+	- essentially a factory class responsible for providing instances of types that are requested from it
+		- once a given type has declared that it has dependencies
+		- and the container has been configured to provide them
+		- then the dependencies will be created as part of creating the requested instances
+	- complex dependencies can be created without actually defining any construction process
+	
+ASP.NET Core has a simple built-in container
+	- represented by IServiceProvider
+	- supports constructor injection by default
+	- and makes certain services available through DI
+	- refers to the types it manages as Services
+	- configure in ConfigureServices methhod of Startup.cs
+	
+
+Using Framework-Provided Services
+
+ConfigureServcies() in Startup.cs responsible for defining the services he applciation will useful
+	- including, e.g. Entity Framework, ASP.NET Core MVC
+	- by default, not a lot included
+		- add, e.g.
+			services.AddDbContext<ApplicationDbContext>(options =>
+				options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+				
+				services.AddIdentity<ApplicationUser, IdentityRole>()
+					.AddEntityFrameworkStores<ApplicationDbContext>()
+					.AddDefaultTokenProviders();
+					
+Regsitering Your Own Services
+
+In general
+	- define the necessary Interface
+	- define the implementation of that interface
+	- set the interface as parameter in the constructor of the consuming class
+		- note, not unusual for DI requests to be chained, so provided class is also itself requesting object to be created
+		- known as a dependency tree/dependency graph
+	- register the service in the ConfigureServcies() method
+
+Can add servcies using the following methods
+	- services.AddTransient<IInterfaceToBeRequested, TConcreteImplementationOfInterface>();
+		- AddTransient instantiates a new object every time it is requested
+	
+	- services.AddScope<IRepositoryInterface, TRepositoryClass>()
+		- use Scoped lifetime to add EF context classes, or repository classes that use EF contexts
+		
+		note special case
+		
+		services.AddDbContext<ApplicationDbContext>(options =>
+			options.UseInMemoryDatabase()
+		);
+		
+		for adding a DbContext, which can be requested as any other service
+	
+		public SomeRepository(ApplicationDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+		
+Lifetimes
+	- transient
+		- created each time they are requested
+		- lightweight, stateless services
+	- scoped
+		- created once per request
+	- singleton
+		- created first time they are requested
+		- subsequent requests use same instance
+		
+Request Services
+	- services available within an ASP.NET request from HttpContext are exposed through RequestServices
+		this.HttpContext.RequestServices
+	- generally to be avoided
+	
+Designing Services for Dependency Injection
+
+Use dependency injection to get your servcies collaborators
+	- avoid stateful static method calls ("static cling")
+	- "New is Glue"
+	- too many dependencies probably means class is doing too much
+		- controllers should just be for UI concerns - pull the business logic out separate
+	- can inject DbContext directly, but repository allows for easier DB changes etc. 
+	
+Recommendations
+	- DI is for objects with complex dependencies	
+		- controllers, services, adapters, repositories
+	- avoid storing data and configuration in DI
+		- e.g., don't add a shopping cart to the servcies container
+		- configuration should use the Options Model
+	- and avoid "data holder" objects - that only exist to allow access to another object
+		- better to request the object directly through DI
+	- avoid static access to services
+	- avoid service location in application code
+	- avoid static access to HttpContext
+	
+Options & Configuration Model
+
+For configuration of objects
+
+Create Options class
+
+	public class MyOptions
+	{
+		public MyOptions()
+		{
+			// Set default value.
+			Option1 = "value1_from_ctor";
+		}
+		public string Option1 { get; set; }
+		public int Option2 { get; set; } = 5;
+	}
+
+Add json file dependency in Startup(), and add configuration service in ConfigureServcies
+
+	public class Startup
+	{
+		public Startup(IHostingEnvironment env)
+		{
+			// Set up configuration sources.
+			var builder = new ConfigurationBuilder()
+				.SetBasePath(env.ContentRootPath)
+				.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+			Configuration = builder.Build();
+		}
+
+		public IConfigurationRoot Configuration { get; set; }
+
+		public void ConfigureServices(IServiceCollection services)
+		{
+			// Adds services required for using options.
+			services.AddOptions();
+
+			// Register the IConfiguration instance which MyOptions binds against.
+			services.Configure<MyOptions>(Configuration);
+
+			// Add framework services.
+			services.AddMvc();
+		}
+
+Then when needed, can access the configuration via DI
+
+	public class HomeController : Controller
+	{
+		private readonly MyOptions _optionsAccessor;
+
+		public HomeController(IOptions<MyOptions> optionsAccessor)
+		{
+			_optionsAccessor = optionsAccessor.Value;
+		}
+
+		public IActionResult Index()
+		{
+			var option1 = _optionsAccessor.Option1;
+			var option2 = _optionsAccessor.Option2;
+			return Content($"option1 = {option1}, option2 = {option2}");
+		}
+	}
+
+Can also set sub-sections of settings, and bind these to smaller classes
+
+e.g. 
+
+{
+  "option1": "value1_from_json",
+  "option2": -1,
+
+  "subsection": {
+	  "suboption1": "subvalue1_from_json",
+	  "suboption2": 200
+  }
+}
+
+and class
+
+public class MySubOptions
+{
+    public MySubOptions()
+    {
+        // Set default values.
+        SubOption1 = "value1_from_ctor";
+        SubOption2 = 5;
+    }
+    public string SubOption1 { get; set; }
+    public int SubOption2 { get; set; }
+}
+
+and registered as a dependency
+
+services.Configure<MySubOptions>(Configuration.GetSection("subsection"));
+
+and consumed
+
+public class HomeController : Controller
+{
+    private readonly MySubOptions _subOptionsAccessor;
+
+    public HomeController(IOptions<MySubOptions> subOptionsAccessor)
+    {
+        _subOptionsAccessor = subOptionsAccessor.Value;
+    }
+
+    public IActionResult Index()
+    {
+        var subOption1 = _subOptionsAccessor.SubOption1;
+        var subOption2 = _subOptionsAccessor.SubOption2;
+        return Content($"subOption1 = {subOption1}, subOption2 = {subOption2}");
+    }
+}
