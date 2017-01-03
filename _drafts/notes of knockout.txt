@@ -216,3 +216,15 @@ To create, specifcy template and viewmodel, and name it
 Communicating with APIs
 	- knockout can work with any JSON data
 		- typically use the jQuery $.getJSON(), or $.post() methods
+
+
+Lists and collections
+
+Calculated stuff
+	<h2>Your seat reservations (<span data-bind="text: seats().length"></span>)</h2>
+
+	bind to calulcated value
+	
+	or, enable & disable with calulcated value
+	
+	<button data-bind="click: addSeat, enable: seats().length < 5">Reserve another seat</button>
