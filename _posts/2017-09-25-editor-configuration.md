@@ -2,7 +2,7 @@
 layout: post
 title:  "Editor Configuration"
 date:   2017-09-25 16:05:28 +0800
-categories: dev-environment-setup configuration
+categories: dev-environment-setup configuration node-js
 ---
 
 Automate Consistency
