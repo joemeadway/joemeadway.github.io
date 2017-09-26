@@ -15,3 +15,5 @@ Editor config files for specific editors can be found at <http://editorconfig.or
 They are used to define preferences such as indentation style (tabs vs. spaces), indentation size (how many of each), and the default file encoding for new files.
 
 In setting these up, one can ensure that new files will follow the given certain standard, and the editorconfig file can be shared to ensure that collaborators also follow the set standards across whichever editor they prefer, given the appropriate plugin is installed.
+
+*Write up of notes from Pluralsight: Building a JavaScript Development Environment*

@@ -1,8 +1,8 @@
 ---
 layout: post
 title:  "Automating build steps with npm scripts"
-date:   2017-09-26 12:05:28 +0800
-categories: dev-environment-setup configuration node-js
+date:   2017-09-26 14:05:28 +0800
+categories: dev-environment-setup configuration node-js npm
 ---
 
 Numerous options for automating build steps
@@ -50,3 +50,4 @@ What's happening here?
 `security-check` is a task that calls to `nsp`, a package that scans node code for common security issues  
 `open:src` is a task that starts the express server for local running  
 
+*Write up of notes from Pluralsight: Building a JavaScript Development Environment*

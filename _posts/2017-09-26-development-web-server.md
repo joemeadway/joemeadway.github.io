@@ -41,3 +41,5 @@ Sensible to keep configuration scripts together in project - for example in a `r
 
 - http-server
 - live-server (offering live reloading)
+
+*Write up of notes from Pluralsight: Building a JavaScript Development Environment*
