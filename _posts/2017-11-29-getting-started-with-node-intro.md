@@ -12,7 +12,8 @@ Node is built from
 
 Written in C++ and javascript.
 
-**Node's event loop**
+Node's event loop
+---
 
 In browser, we are always listening for DOM events. Node carries this idea over to server-side runtime.
 
@@ -25,7 +26,8 @@ Node has same concept
 - all events are handled discretely
 - non-blocking
 
-**Node conventions**
+Node conventions
+---
 
 Functions passed as parameters - callbacks and event emitters
 
@@ -33,7 +35,7 @@ Functions passed as parameters - callbacks and event emitters
 - Error is passed as first parameter - and check if error is undefined
 - Closures are your friend
 
-But, avoid too many nested aonymous functions - look to use streams or named functions to provide clarity. 
+But, avoid too many nested anonymous functions - look to use streams or named functions to provide clarity. 
 
 
 
