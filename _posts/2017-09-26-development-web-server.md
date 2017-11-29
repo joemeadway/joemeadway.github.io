@@ -2,7 +2,7 @@
 layout: post
 title:  "Setting up a development web server"
 date:   2017-09-26 12:05:28 +0800
-categories: dev-environment-setup configuration node-js
+categories: dev-environment-setup configuration node-js pluralsight
 ---
 
 Using Express to run app locally

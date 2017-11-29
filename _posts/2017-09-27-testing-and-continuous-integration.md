@@ -2,7 +2,7 @@
 layout: post
 title:  "Testing and Continuous Integration"
 date:   2017-09-27 15:50:00 +0800
-categories: dev-environment-setup configuration node-js testing
+categories: dev-environment-setup configuration node-js testing pluralsight
 ---
 
 6 key decisions to make

@@ -2,7 +2,7 @@
 layout: post
 title:  "Transpiling JS"
 date:   2017-09-26 12:05:28 +0800
-categories: dev-environment-setup configuration node-js babel
+categories: dev-environment-setup configuration node-js babel pluralsight
 ---
 
 Transpiling is necessary for 
