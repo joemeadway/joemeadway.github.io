@@ -1,7 +1,8 @@
 ---
 layout: post
-title:  "Webpack Official Tutorial Notes"
-date:   2017-02-21 09:05:00 +0800
+title:  "Webpack Official Tutorial Notes - 4 Key Concepts"
+date:   2017-03-02
+ 14:31:00 +0800
 categories: webpack
 ---
 
@@ -23,8 +24,3 @@ Loaders are used by webpack to handle different types of input files - they gene
 Plugins are used to extend the default functionality of webpack. For example, they may minify content, or optimise images - things that webpack will not do on its own.
 
 All of these get setup in the `webpack.config.js` file.
-
-
-Getting Started
----
-
