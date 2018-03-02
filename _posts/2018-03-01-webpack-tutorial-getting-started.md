@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Webpack Official Tutorial Notes - Basic Setup"
-date:   2017-03-01 09:05:00 +0800
+date:   2018-03-01 09:05:00 +0800
 categories: webpack
 ---
 
