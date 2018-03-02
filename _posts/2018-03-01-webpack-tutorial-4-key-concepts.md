@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Webpack Official Tutorial Notes - 4 Key Concepts"
-date:   2018-03-02 14:31:00 +0800
+date:   2018-03-01 14:31:00 +0800
 categories: webpack
 ---
 
