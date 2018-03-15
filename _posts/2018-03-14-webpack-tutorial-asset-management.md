@@ -94,16 +94,21 @@ Loading Fonts
 
 For fonts, we use the `file-loader` loader again, but targeting different file extensions - e.g.
 
-```
+{% highlight javascript %}
+
 {
     test: /\.(woff|woff2|eot|ttf|otf)$/,
     use: [
         'file-loader'
     ]
 }
-```
+
+{% endhighlight %}
+
 and reference in the css
-```
+
+{% highlight css %}
+
 @font-face {
     font-family: 'MyFont';
     src:  url('./my-font.woff2') format('woff2'),
@@ -117,13 +122,15 @@ and reference in the css
     -family: 'MyFont';
     background: url('./icon.png');
 }
-```
+
+{% endhighlight %}
 
 Loading Data
 ---
 We can also load data files in variety of formats - JSON, XML, CSV, etc. There are usually different loaders for the data type being loaded - `csv-loader`, `xml-loader`...
 
-```
+{% highlight javascript %}
+
 {
     test: /\.(csv|tsv)$/,
     use: [
@@ -136,7 +143,8 @@ We can also load data files in variety of formats - JSON, XML, CSV, etc. There a
         'xml-loader'
     ]
 }
-```
+
+{% endhighlight %}
 
 Component file structure
 ---
