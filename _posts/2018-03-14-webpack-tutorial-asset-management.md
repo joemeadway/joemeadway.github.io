@@ -72,14 +72,14 @@ Loading Images
 
 We can load images using `file-loader`.
 
-```
+{% highlight javascript %}
 {
     test: /\.(png|svg|jpg|gif)$/,
     use: [
         'file-loader'
     ]
 }
-```
+{% endhighlight %}
 
 And then we can import an image into a module
 
